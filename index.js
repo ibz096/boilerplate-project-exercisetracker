@@ -37,10 +37,14 @@ app.post('/api/users', (req, res) => {
   let newUser = new User({username: req.body.username})
   newUser.save((err, data) => {
     if (err) return err
-    res.send(data)
+    res.json({
+      username: data.username,
+      _id: data._id
+    })
   }) 
   
 })
+
 
 
 const listener = app.listen(process.env.PORT || 3000, () => {

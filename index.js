@@ -89,7 +89,6 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
           date: new Date(saveExercise.date).toDateString(),
           _id: saveExercise.user_id
         })
-        // console.log()
       } catch (error) {
         console.log(`Error while saving Exercise document: ${error}`)
       }
@@ -106,21 +105,32 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
 //Make a GET request to /api/users/:_id/logs to retrieve a full exercise log of any user.
 app.get('/api/users/:_id/logs', async (req, res) => {
   let userId = req.params._id;
+  let { from, to, limit } = req.query
+  let exercises
+  // console.log(from, to, limit)
   //Query the Exercise collection where using the userId(_id) provided
   try {
-    let exercises = await Exercise.find({user_id: userId}).exec();
-    console.log(exercises)
-    //count = exercises.length
+    if (!from || !to) {
+      exercises = await Exercise.find({user_id: userId}).limit(limit).exec();
+    } else {
+      exercises = await Exercise.find({user_id: userId})
+        .where('date')
+        .gt(from)
+        .lt(to)
+        .limit(limit)
+        .exec();
+    }
+    
     res.json({
       username: exercises[0].username,
       count: exercises.length,
       _id: exercises[0].user_id,
-      log: exercises.map( (obj) => ({
+      log: exercises
+        .map( (obj) => ({
         description: obj.description,
         duration: obj.duration,
         date: new Date(obj.date).toDateString()
-        
-  }))
+      }))
     });
   } catch (error) {
     console.log(error)

@@ -118,7 +118,7 @@ app.get('/api/users/:_id/logs', async (req, res) => {
       log: exercises.map( (obj) => ({
         description: obj.description,
         duration: obj.duration,
-        date: obj.date
+        date: new Date(obj.date).toDateString()
         
   }))
     });
